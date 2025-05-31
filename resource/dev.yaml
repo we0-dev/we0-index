@@ -1,0 +1,38 @@
+we0-index:
+  application: we0-index
+  server:
+    host: 0.0.0.0
+    port: 8080
+    reload: True
+  log:
+    level: INFO
+    file: false
+    debug: false
+  vector:
+    platform: pgvector
+    code2desc: false
+    chat-provider: openai
+    chat-model: gpt-4o-mini
+    embedding-provider: jina
+    embedding-model: jina-embeddings-v2-base-code
+    pgvector:
+      db: we0_index
+      host: localhost
+      port: 5432
+      user: root
+      password: password
+    qdrant:
+      mode: disk
+      disk:
+        path: vector/qdrant
+      remote:
+        host: localhost
+        port: 6333
+    chroma:
+      mode: disk
+      disk:
+        path: vector/chroma
+      remote:
+        host: localhost
+        port: 8000
+        ssl: false
