@@ -32,7 +32,7 @@ class RepoLoader:
         except Exception as e:
             raise e
 
-        segmenter = cls.get_segmenter_constructor(extension=blob.extension).from_tiktoken_encoder(text=text)
+        segmenter = cls.get_segmenter_constructor(extension=blob.extension).from_tiktoken_encoder(text=text, merge_small_chunks=True)
         if not segmenter.is_valid():
             segmenter = cls.get_segmenter_constructor().from_tiktoken_encoder(text=text)
 
