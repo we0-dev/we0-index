@@ -17,10 +17,10 @@ we0-index:
     embedding-model: jina-embeddings-v2-base-code
     pgvector:
       db: we0_index
-      host: localhost
+      host: 125.122.25.32
       port: 5432
-      user: root
-      password: password
+      user: fastgpt
+      password: fastgpt_password
     qdrant:
       mode: disk
       disk:
