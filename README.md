@@ -54,6 +54,53 @@ uv sync --frozen
 3. **Vector Database**: Configure your preferred vector database backend
 4. **Embedding Service**: Set up your embedding service provider
 
+## 🚀 Running the Service
+
+We0-index supports two running modes: Web API service and MCP protocol service.
+
+### Web API Mode
+
+Start the FastAPI web server to provide RESTful API endpoints:
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Start web service
+python main.py --mode fastapi
+```
+
+The web service will start on the configured host and port (check `resource/dev.yaml` for default configuration).
+
+### MCP Protocol Mode
+
+Start the MCP (Model Context Protocol) service for AI integration:
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Start MCP service (default with streamable-http transport)
+python main.py --mode mcp
+
+# Specify other transport protocols
+python main.py --mode mcp --transport stdio
+python main.py --mode mcp --transport websocket
+```
+
+The MCP service runs with streamable-http transport by default and can be integrated with MCP-compatible AI clients.
+
+### Runtime Parameters
+
+**Mode Parameters**:
+- `--mode fastapi`: Start Web API service
+- `--mode mcp`: Start MCP protocol service
+
+**Transport Parameters** (only applicable for MCP mode):
+- `--transport streamable-http`: Use HTTP streaming transport (default)
+- `--transport stdio`: Use standard input/output transport
+- `--transport websocket`: Use WebSocket transport
+
 
 
 ## 🏗️ Architecture

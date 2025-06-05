@@ -188,9 +188,13 @@ class PgVector(BaseVector):
 
             sql_query += "ORDER BY distance LIMIT :top_k"
 
-            stmt = text(sql_query).bindparams(
-                bindparam("file_ids", expanding=False)  # 关键点：禁止自动展开列表为多个参数
-            )
+            if file_ids:
+                stmt = text(sql_query).bindparams(
+                    bindparam("file_ids", expanding=False)
+                )
+            else:
+                stmt = text(sql_query)
+
             result = await conn.execute(
                 stmt,
                 parameters

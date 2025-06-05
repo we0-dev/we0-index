@@ -140,7 +140,15 @@ async def delete_index(delete_index_request: DeleteIndexRequest):
         return Result.failed(message=f"{type(e).__name__}: {e}")
 
 
-@vector_router.post('/retrieval', response_model=Result)
+@vector_router.post('/all_index', response_model=Result)
+async def all_index(all_index_request: AllIndexRequest):
+    try:
+        all_meta = await ExtManager.vector.all_meta(repo_id=all_index_request.repo_id)
+        return Result.ok(data=all_meta)
+    except Exception as e:
+        return Result.failed(message=f"{type(e).__name__}: {e}")
+
+
 async def retrieval(
         retrieval_request: RetrievalRequest
 ) -> Result[List[DocumentMeta]]:
@@ -159,10 +167,4 @@ async def retrieval(
         return Result.failed(message=f"{type(e).__name__}: {e}")
 
 
-@vector_router.post('/all_index', response_model=Result)
-async def all_index(all_index_request: AllIndexRequest):
-    try:
-        all_meta = await ExtManager.vector.all_meta(repo_id=all_index_request.repo_id)
-        return Result.ok(data=all_meta)
-    except Exception as e:
-        return Result.failed(message=f"{type(e).__name__}: {e}")
+vector_router.add_api_route('/retrieval', retrieval, response_model=Result[List[DocumentMeta]])
