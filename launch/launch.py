@@ -64,13 +64,13 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # 注册路由
-    app.include_router(vector_router, prefix="/vector", tags=["vector"])
-    app.include_router(git_router, prefix="/git", tags=["git"])
     return app
 
 
 app = create_app()
+# 注册路由
+app.include_router(vector_router, prefix="/vector", tags=["vector"])
+app.include_router(git_router, prefix="/git", tags=["git"])
 
 
 @app.exception_handler(CommonException)

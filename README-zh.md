@@ -52,6 +52,53 @@ uv sync --frozen
 3. **向量数据库**：配置您首选的向量数据库后端
 4. **Embedding服务**：设置您的embedding服务提供商
 
+## 🚀 启动服务
+
+We0-index支持两种运行模式：Web API服务和MCP协议服务。
+
+### Web API 模式
+
+启动FastAPI Web服务器，提供RESTful API接口：
+
+```bash
+# 激活虚拟环境
+source .venv/bin/activate
+
+# 启动Web服务
+python main.py --mode fastapi
+```
+
+Web服务将在配置的主机和端口上启动（默认配置请查看`resource/dev.yaml`）。
+
+### MCP 协议模式
+
+启动MCP（模型上下文协议）服务，用于AI集成：
+
+```bash
+# 激活虚拟环境
+source .venv/bin/activate
+
+# 启动MCP服务（默认使用streamable-http传输协议）
+python main.py --mode mcp
+
+# 指定其他传输协议
+python main.py --mode mcp --transport stdio
+python main.py --mode mcp --transport websocket
+```
+
+MCP服务默认使用streamable-http传输协议运行，可与支持MCP的AI客户端集成。
+
+### 运行参数
+
+**模式参数**：
+- `--mode fastapi`：启动Web API服务
+- `--mode mcp`：启动MCP协议服务
+
+**传输协议参数**（仅适用于MCP模式）：
+- `--transport streamable-http`：使用HTTP流传输（默认）
+- `--transport stdio`：使用标准输入输出传输
+- `--transport websocket`：使用WebSocket传输
+
 
 ## 🏗️ 架构
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import asyncio
 import os
 from typing import List, Optional
 from urllib.parse import quote
@@ -58,7 +59,8 @@ async def _process_file(uid: str, repo_id: str, repo_path: str, base_dir, relati
     )
 
 
-def _prepare_repo_url_with_auth(repo_url: str, username: Optional[str] = None, password: Optional[str] = None, access_token: Optional[str] = None) -> str:
+def _prepare_repo_url_with_auth(repo_url: str, username: Optional[str] = None, password: Optional[str] = None,
+                                access_token: Optional[str] = None) -> str:
     """
     为私有仓库准备带有认证信息的 URL
     对用户名和密码进行 URL 编码，以处理包含特殊字符（如 @ 符号）的情况
@@ -85,8 +87,7 @@ def _prepare_repo_url_with_auth(repo_url: str, username: Optional[str] = None, p
     return repo_url
 
 
-@git_router.post("/clone_and_index", response_model=Result[AddIndexResponse])
-async def clone_and_index(git_index_request: GitIndexRequest):
+async def clone_and_index(git_index_request: GitIndexRequest) -> Result[AddIndexResponse]:
     """
     克隆 Git 仓库并对所有文件进行索引
     支持私有仓库访问:
@@ -97,14 +98,14 @@ async def clone_and_index(git_index_request: GitIndexRequest):
     try:
         if not git_index_request.uid:
             git_index_request.uid = 'default_uid'
-        
+
         domain, owner, repo = parse_git_url(git_index_request.repo_url)
         repo_abs_path = f'{domain}/{owner}/{repo}'
         repo_id = Helper.generate_fixed_uuid(f"{git_index_request.uid}{repo_abs_path}:")
 
         # 准备认证后的仓库 URL
         auth_repo_url = _prepare_repo_url_with_auth(
-            git_index_request.repo_url, 
+            git_index_request.repo_url,
             git_index_request.username,
             git_index_request.password,
             git_index_request.access_token
@@ -114,19 +115,20 @@ async def clone_and_index(git_index_request: GitIndexRequest):
 
         async with aiofiles.tempfile.TemporaryDirectory() as tmp_dir:
             try:
-                Repo.clone_from(
-                    url=auth_repo_url,
-                    to_path=tmp_dir
+                await asyncio.to_thread(
+                    Repo.clone_from,
+                    auth_repo_url,
+                    tmp_dir
                 )
             except Exception as e:
-                logger.exception(e)
+                logger.error(f'{type(e).__name__}: {e}')
                 raise e
             # 遍历并处理文件
             for root, dirs, files in os.walk(tmp_dir):
                 # 忽略 .git 等隐藏目录
                 dirs[:] = [d for d in dirs if not d.startswith('.')]
                 for file in files:
-                    if not file.startswith('.'): 
+                    if not file.startswith('.'):
                         relative_path = os.path.relpath(os.path.join(root, file), start=tmp_dir)
                         await _process_file(
                             uid=git_index_request.uid,
@@ -136,9 +138,9 @@ async def clone_and_index(git_index_request: GitIndexRequest):
                             relative_path=relative_path
                         )
                         file_count += 1
-            
+
             logger.info(f"Successfully processed {file_count} files from repository {repo_abs_path}")
-                         
+
         return Result.ok(data=AddIndexResponse(
             repo_id=repo_id,
             file_infos=[]
@@ -146,3 +148,6 @@ async def clone_and_index(git_index_request: GitIndexRequest):
     except Exception as e:
         logger.exception(e)
         return Result.failed(message=f"{type(e).__name__}: {e}")
+
+
+git_router.add_api_route('/clone_and_index', clone_and_index, response_model=Result[AddIndexResponse])
