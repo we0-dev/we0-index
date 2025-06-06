@@ -89,6 +89,10 @@ def _prepare_repo_url_with_auth(repo_url: str, username: Optional[str] = None, p
 
 async def clone_and_index(git_index_request: GitIndexRequest) -> Result[AddIndexResponse]:
     """
+    Tool parameters must be in standard JSON format!
+    "git_index_request": {
+        "xxx": "xxx"
+    }
     克隆 Git 仓库并对所有文件进行索引
     支持私有仓库访问:
     - Access Token 认证 (推荐): 提供 access_token 参数
