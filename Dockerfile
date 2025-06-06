@@ -8,7 +8,7 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0
 WORKDIR /app
 
 RUN pip install --no-cache-dir uv
-RUN apt-get update && apt-get install git -y
+RUN apt-get update && apt-get install --no-install-recommends -y git && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml /app
 
@@ -30,6 +30,11 @@ VOLUME /app/storage
 WORKDIR /app
 
 COPY . /app
+
+COPY --from=builder /usr/bin/git /usr/bin/
+COPY --from=builder /usr/lib/git-core /usr/lib/git-core
+COPY --from=builder /usr/libexec/git-core /usr/libexec/git-core
+
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 
