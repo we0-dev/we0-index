@@ -150,4 +150,4 @@ async def clone_and_index(git_index_request: GitIndexRequest) -> Result[AddIndex
         return Result.failed(message=f"{type(e).__name__}: {e}")
 
 
-git_router.add_api_route('/clone_and_index', clone_and_index, response_model=Result[AddIndexResponse])
+git_router.add_api_route('/clone_and_index', clone_and_index, methods=['POST'], response_model=Result[AddIndexResponse])

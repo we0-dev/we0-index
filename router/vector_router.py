@@ -167,4 +167,4 @@ async def retrieval(
         return Result.failed(message=f"{type(e).__name__}: {e}")
 
 
-vector_router.add_api_route('/retrieval', retrieval, response_model=Result[List[DocumentMeta]])
+vector_router.add_api_route('/retrieval', retrieval, methods=['POST'], response_model=Result[List[DocumentMeta]])
