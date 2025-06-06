@@ -16,6 +16,9 @@ from mcp.shared.context import RequestT
 from extensions import ext_manager
 from router.git_router import clone_and_index
 from router.vector_router import retrieval
+from setting.setting import get_we0_index_settings
+
+sider_settings = get_we0_index_settings()
 
 
 @asynccontextmanager
@@ -33,7 +36,10 @@ def create_fast_mcp() -> FastMCP:
             Tool.from_function(clone_and_index),
             Tool.from_function(retrieval),
         ],
-        lifespan=lifespan
+        lifespan=lifespan,
+        host=sider_settings.server.host,
+        port=sider_settings.server.port,
+        log_level=sider_settings.log.level
     )
     return app
 

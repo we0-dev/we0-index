@@ -32,4 +32,4 @@ COPY . /app
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 
-CMD uv run uvicorn launch.launch:app --workers 1 --host 0.0.0.0 --port $PORT --env-file /app/.env
+CMD uv run python /app/main.py
