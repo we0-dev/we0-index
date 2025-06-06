@@ -31,9 +31,8 @@ WORKDIR /app
 
 COPY . /app
 
-COPY --from=builder /usr/bin/git /usr/bin/
+COPY --from=builder /usr/bin/git /usr/bin/git
 COPY --from=builder /usr/lib/git-core /usr/lib/git-core
-COPY --from=builder /usr/libexec/git-core /usr/libexec/git-core
 
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
