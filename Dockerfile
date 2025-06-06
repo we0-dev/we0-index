@@ -8,7 +8,6 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0
 WORKDIR /app
 
 RUN pip install --no-cache-dir uv
-RUN apt-get update && apt-get install --no-install-recommends -y git && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml /app
 
@@ -18,6 +17,9 @@ RUN uv lock && uv sync --frozen --no-dev
 # ----------------------------
 FROM python:3.12.8-slim
 
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y git ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 ENV PORT 8080
 ENV PATH="/app/.venv/bin:$PATH"
 
@@ -30,9 +32,6 @@ VOLUME /app/storage
 WORKDIR /app
 
 COPY . /app
-
-COPY --from=builder /usr/bin/git /usr/bin/git
-COPY --from=builder /usr/lib/git-core /usr/lib/git-core
 
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
