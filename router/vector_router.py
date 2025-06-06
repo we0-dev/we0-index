@@ -153,6 +153,10 @@ async def retrieval(
         retrieval_request: RetrievalRequest
 ) -> Result[List[DocumentMeta]]:
     """
+    Tool parameters must be in standard JSON format!
+    "retrieval_request": {
+        "xxx": "xxx"
+    }
     相似度匹配，从整个仓库或指定仓库的部分文件
     """
     try:
