@@ -85,7 +85,7 @@ python main.py --mode mcp
 
 # Specify other transport protocols
 python main.py --mode mcp --transport stdio
-python main.py --mode mcp --transport websocket
+python main.py --mode mcp --transport sse
 ```
 
 The MCP service runs with streamable-http transport by default and can be integrated with MCP-compatible AI clients.
@@ -99,7 +99,7 @@ The MCP service runs with streamable-http transport by default and can be integr
 **Transport Parameters** (only applicable for MCP mode):
 - `--transport streamable-http`: Use HTTP streaming transport (default)
 - `--transport stdio`: Use standard input/output transport
-- `--transport websocket`: Use WebSocket transport
+- `--transport sse`: Use sse transport
 
 
 
