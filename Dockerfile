@@ -7,7 +7,7 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir
+RUN pip install --no-cache-dir uv
 
 COPY pyproject.toml /app
 
