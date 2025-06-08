@@ -8,6 +8,7 @@
 import json
 from typing import List, Optional
 
+import numpy as np
 from sqlalchemy import text, bindparam
 from sqlalchemy.ext.asyncio import create_async_engine
 
@@ -45,6 +46,7 @@ class PgVector(BaseVector):
     def __init__(self):
         self.client = self.get_client()
         self.table_name: str | None = None
+        self.normalized: bool = False
 
     @staticmethod
     def get_client():
@@ -57,6 +59,9 @@ class PgVector(BaseVector):
     async def init(self):
         async with self.client.begin() as conn:
             dimension = await self.get_dimension()
+            if dimension > 2000:
+                dimension = 2000
+                self.normalized = True
             self.table_name = self.dynamic_collection_name(dimension)
             await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
             await conn.execute(text(SQL_CREATE_TABLE(self.table_name, dimension)))
@@ -77,16 +82,22 @@ class PgVector(BaseVector):
                     embedding = EXCLUDED.embedding
                 """
         )
-        parameters = [
-            {
-                'id': doc.meta.segment_id,
-                'repo_id': repo_id,
-                'file_id': doc.meta.file_id,
-                'content': doc.content,
-                'meta': doc.meta.model_dump_json(exclude={'score', 'content'}),
-                'embedding': doc.vector,
-            } for doc in documents if doc.meta is not None
-        ]
+        parameters = []
+        for doc in documents:
+            if doc.meta is not None:
+                if self.normalized:
+                    vector = self.normalize_l2(doc.vector[:2000])
+                else:
+                    vector = doc.vector
+                parameters.append({
+                    'id': doc.meta.segment_id,
+                    'repo_id': repo_id,
+                    'file_id': doc.meta.file_id,
+                    'content': doc.content,
+                    'meta': doc.meta.model_dump_json(exclude={'score', 'content'}),
+                    'embedding': vector,
+                })
+
         return stmt, parameters
 
     async def create(self, documents: List[Document]):
@@ -174,7 +185,8 @@ class PgVector(BaseVector):
                 f"FROM {self.table_name} "
                 f"WHERE repo_id = :repo_id "
             )
-
+            if self.normalized:
+                query_vector = self.normalize_l2(query_vector[:2000])
             # 基础参数
             parameters = {
                 "query_vector": json.dumps(query_vector),
@@ -208,3 +220,15 @@ class PgVector(BaseVector):
                     meta['content'] = content
                     documents.append(Document(content=content, meta=DocumentMeta.model_validate(meta)))
         return documents
+
+    @staticmethod
+    def normalize_l2(x: List[float]) -> List[float]:
+        x = np.array(x)
+        if x.ndim == 1:
+            norm = np.linalg.norm(x)
+            if norm == 0:
+                return x.tolist()
+            return (x / norm).tolist()
+        else:
+            norm = np.linalg.norm(x, 2, axis=1, keepdims=True)
+            return np.where(norm == 0, x, x / norm).tolist()
