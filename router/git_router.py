@@ -22,10 +22,10 @@ from utils.git_parse import parse_git_url
 from utils.helper import Helper
 from utils.mimetype_util import guess_mimetype_and_extension
 from utils.vector_helper import VectorHelper
-
+from asyncio import Semaphore
 git_router = APIRouter()
 settings = get_we0_index_settings()
-
+async_semaphore = Semaphore(100)
 
 async def _process_file(uid: str, repo_id: str, repo_path: str, base_dir, relative_path: str) -> FileInfoResponse:
     logger.info(f'Processing file {relative_path}')
@@ -47,9 +47,10 @@ async def _process_file(uid: str, repo_id: str, repo_path: str, base_dir, relati
     )
 
     try:
-        documents: List[Document] = await VectorHelper.build_and_embedding_segment(task_context)
-        if documents:
-            await ExtManager.vector.upsert(documents)
+        async with async_semaphore:
+            documents: List[Document] = await VectorHelper.build_and_embedding_segment(task_context)
+            if documents:
+                await ExtManager.vector.upsert(documents)
     except Exception as e:
         raise e
 
@@ -128,20 +129,23 @@ async def clone_and_index(git_index_request: GitIndexRequest) -> Result[AddIndex
                 logger.error(f'{type(e).__name__}: {e}')
                 raise e
             # 遍历并处理文件
+            tasks = []
             for root, dirs, files in os.walk(tmp_dir):
                 # 忽略 .git 等隐藏目录
                 dirs[:] = [d for d in dirs if not d.startswith('.')]
                 for file in files:
                     if not file.startswith('.'):
                         relative_path = os.path.relpath(os.path.join(root, file), start=tmp_dir)
-                        await _process_file(
+                        tasks.append(asyncio.create_task(_process_file(
                             uid=git_index_request.uid,
                             repo_id=repo_id,
                             repo_path=repo_abs_path,
                             base_dir=tmp_dir,
                             relative_path=relative_path
-                        )
-                        file_count += 1
+                        )))
+            for task in asyncio.as_completed(tasks):
+                await task
+                file_count += 1
 
             logger.info(f"Successfully processed {file_count} files from repository {repo_abs_path}")
 

@@ -42,10 +42,21 @@ class ModelInstance:
     async def create_embedding(self, documents: List[str]) -> List[List[float]]:
         match self.model_type:
             case ModelType.OPENAI | ModelType.JINA:
-                embedding_response: CreateEmbeddingResponse = await self.get_embedding_client().create(
-                    input=documents, model=self.model_name
-                )
-                return [data.embedding for data in embedding_response.data]
+                docs_seq = list(documents)
+                if len(docs_seq) > 2048:
+                    all_embeddings: List[List[float]] = []
+                    for start in range(0, len(docs_seq), 2048):
+                        batch = docs_seq[start: start + 2048]
+                        resp = await self.get_embedding_client().create(
+                            input=batch, model=self.model_name
+                        )
+                        all_embeddings.extend(d.embedding for d in resp.data)
+                    return all_embeddings
+                else:
+                    resp = await self.get_embedding_client().create(
+                        input=docs_seq, model=self.model_name
+                    )
+                    return [d.embedding for d in resp.data]
             case _:
                 raise Exception(f"Unknown model type: {self.model_type}")
 
