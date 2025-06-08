@@ -53,7 +53,8 @@ async def _upsert_index(uid: str, repo_abs_path: str, repo_id: str, file_info: A
     )
     try:
         documents: List[Document] = await VectorHelper.build_and_embedding_segment(task_context)
-        await ExtManager.vector.upsert(documents)
+        if documents:
+            await ExtManager.vector.upsert(documents)
     except Exception as e:
         raise e
     return FileInfoResponse(
@@ -110,8 +111,11 @@ async def upsert_index_by_file(
     )
     try:
         documents: List[Document] = await VectorHelper.build_and_embedding_segment(task_context)
-        await ExtManager.vector.upsert(documents)
-        return Result.ok(data=AddIndexByFileResponse(repo_id=repo_id, file_id=file_id))
+        if documents:
+            await ExtManager.vector.upsert(documents)
+            return Result.ok(data=AddIndexByFileResponse(repo_id=repo_id, file_id=file_id))
+        else:
+            return Result.failed(message=f"Not Content")
     except Exception as e:
         return Result.failed(message=f"{type(e).__name__}: {e}")
 

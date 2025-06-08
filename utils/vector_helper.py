@@ -56,26 +56,26 @@ class VectorHelper:
         except UnicodeDecodeError as e:
             logger.error(e)
             documents = []
-
-        embedding_model: ModelInstance = await ExtManager.vector.get_embedding_model()
-        if settings.vector.code2desc:
-            chat_model: ModelInstance = await ExtManager.vector.get_completions_model()
-            await asyncio.wait([
-                asyncio.create_task(VectorHelper.code2description(document=document, chat_model=chat_model))
-                for document in documents
-            ])
-            vector_data: List[List[float]] = await embedding_model.create_embedding(
-                [
-                    f"'{document.meta.relative_path}'\n'{document.meta.description}'\n{document.content}"
+        if documents:
+            embedding_model: ModelInstance = await ExtManager.vector.get_embedding_model()
+            if settings.vector.code2desc:
+                chat_model: ModelInstance = await ExtManager.vector.get_completions_model()
+                await asyncio.wait([
+                    asyncio.create_task(VectorHelper.code2description(document=document, chat_model=chat_model))
                     for document in documents
-                ]
-            )
-        else:
-            vector_data: List[List[float]] = await embedding_model.create_embedding(
-                [
-                    f"'{document.meta.relative_path}'\n{document.content}" for document in documents
-                ]
-            )
-        for index, document in enumerate(documents):
-            document.vector = vector_data[index]
+                ])
+                vector_data: List[List[float]] = await embedding_model.create_embedding(
+                    [
+                        f"'{document.meta.relative_path}'\n'{document.meta.description}'\n{document.content}"
+                        for document in documents
+                    ]
+                )
+            else:
+                vector_data: List[List[float]] = await embedding_model.create_embedding(
+                    [
+                        f"'{document.meta.relative_path}'\n{document.content}" for document in documents
+                    ]
+                )
+            for index, document in enumerate(documents):
+                document.vector = vector_data[index]
         return documents
