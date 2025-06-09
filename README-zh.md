@@ -34,7 +34,10 @@ vim resource/dev.yaml
 
 # 创建虚拟环境并安装依赖
 uv venv
+# Linux/macOS
 source .venv/bin/activate
+# Windows
+.venv\Scripts\activate
 uv sync
 ```
 
@@ -62,7 +65,10 @@ We0-index支持两种运行模式：Web API服务和MCP协议服务。
 
 ```bash
 # 激活虚拟环境
+# Linux/macOS
 source .venv/bin/activate
+# Windows
+.venv\Scripts\activate
 
 # 启动Web服务
 python main.py --mode fastapi
@@ -76,7 +82,10 @@ Web服务将在配置的主机和端口上启动（默认配置请查看`resourc
 
 ```bash
 # 激活虚拟环境
+# Linux/macOS
 source .venv/bin/activate
+# Windows
+.venv\Scripts\activate
 
 # 启动MCP服务（默认使用streamable-http传输协议）
 python main.py --mode mcp
