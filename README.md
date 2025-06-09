@@ -36,10 +36,7 @@ vim resource/dev.yaml
 
 # Create virtual environment and install dependencies
 uv venv
-# Linux/macOS
 source .venv/bin/activate
-# Windows
-.venv\Scripts\activate
 uv sync
 ```
 
@@ -67,10 +64,7 @@ Start the FastAPI web server to provide RESTful API endpoints:
 
 ```bash
 # Activate virtual environment
-# Linux/macOS
 source .venv/bin/activate
-# Windows
-.venv\Scripts\activate
 
 # Start web service
 python main.py --mode fastapi
@@ -84,10 +78,7 @@ Start the MCP (Model Context Protocol) service for AI integration:
 
 ```bash
 # Activate virtual environment
-# Linux/macOS
 source .venv/bin/activate
-# Windows
-.venv\Scripts\activate
 
 # Start MCP service (default with streamable-http transport)
 python main.py --mode mcp
