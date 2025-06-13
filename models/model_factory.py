@@ -12,7 +12,7 @@ from openai.types import CreateEmbeddingResponse
 from openai.types.chat import ChatCompletionMessageParam, ChatCompletion
 
 from clients import jina
-from domain.emuns.model_provider import ModelType
+from domain.enums.model_provider import ModelType
 
 
 class ModelInstance:

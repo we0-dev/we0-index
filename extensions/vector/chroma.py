@@ -12,7 +12,7 @@ from typing import List, Optional
 import chromadb
 from chromadb import QueryResult
 
-from domain.emuns.chroma_mode import ChromaMode
+from domain.enums.chroma_mode import ChromaMode
 from domain.entity.document import Document, DocumentMeta
 from extensions.vector.base_vector import BaseVector
 from setting.setting import get_we0_index_settings

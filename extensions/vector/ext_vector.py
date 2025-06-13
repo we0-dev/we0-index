@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from loguru import logger
 
-from domain.emuns.vector_type import VectorType
+from domain.enums.vector_type import VectorType
 from domain.entity.document import Document, DocumentMeta
 from extensions.vector.base_vector import BaseVector
 from setting.setting import We0IndexSettings, get_we0_index_settings
