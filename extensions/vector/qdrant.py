@@ -12,7 +12,7 @@ from qdrant_client.async_qdrant_client import AsyncQdrantClient
 from qdrant_client.http import models as rest
 from qdrant_client.http.exceptions import UnexpectedResponse
 
-from domain.emuns.qdrant_mode import QdrantMode
+from domain.enums.qdrant_mode import QdrantMode
 from domain.entity.document import Document, DocumentMeta
 from extensions.vector.base_vector import BaseVector
 from setting.setting import get_we0_index_settings

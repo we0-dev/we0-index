@@ -13,10 +13,10 @@ from pydantic import BaseModel, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource, YamlConfigSettingsSource
 
 from constants.constants import Constants
-from domain.emuns.chroma_mode import ChromaMode
-from domain.emuns.model_provider import ModelType
-from domain.emuns.qdrant_mode import QdrantMode
-from domain.emuns.vector_type import VectorType
+from domain.enums.chroma_mode import ChromaMode
+from domain.enums.model_provider import ModelType
+from domain.enums.qdrant_mode import QdrantMode
+from domain.enums.vector_type import VectorType
 
 
 class ServerSettings(BaseModel):
